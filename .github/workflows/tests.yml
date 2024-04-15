@@ -1,10 +1,10 @@
 name: CI
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: workflow_dispatch
+
+env:
+  GHIDRA_INSTALL_DIR: ${{ github.workspace }}/../tmp/ghidra/ghidra_PUBLIC
+  DEMANGLER_PATH: ${{ github.workspace }}/../tmp/ghidra/ghidra_PUBLIC/GPL/DemanglerGnu/os/linux_x86_64/demangler_gnu_v2_24
 
 jobs:
 
@@ -106,28 +106,21 @@ jobs:
         Rename-Item -Path "./dist/$((Get-ChildItem -Path "./dist").Name)" -NewName "Ghidrathon.zip"
         tar -xf ./dist/Ghidrathon.zip -C ../tmp/ghidra/ghidra_PUBLIC/Ghidra/Extensions/
 
-    # test Ghidrathon when GHIDRATHON_SAVE_PATH is unset
-    - name: Set Ghidrathon Python interpreter (GHIDRATHON_SAVE_PATH is unset)
-      run: python util/ghidrathon_configure.py ../tmp/ghidra/ghidra_PUBLIC -d
-    - name: Run tests (GHIDRATHON_SAVE_PATH is unset)
-      run: |
-        ../tmp/ghidra/ghidra_PUBLIC/support/analyzeHeadless ${{ github.workspace }}/../tmp/ghidra test -Import ${{ github.workspace }}/../tmp/ghidra/ghidra_PUBLIC/GPL/DemanglerGnu/os/linux_x86_64/demangler_gnu_v2_24 -overwrite -PostScript ${{ github.workspace }}/data/python/tests/hello.py -PostScript ${{ github.workspace }}/data/python/tests/runall.py > ../tmp/log.txt
-    - name: Check tests (GHIDRATHON_SAVE_PATH is unset)
-      run: |
-        python -c "import pathlib, sys;log_text=pathlib.Path('../tmp/log.txt').read_text(encoding='utf-8');print(log_text);sys.exit(0 if 'runall.py called exit with code 0' in log_text else -1)"
-        python -c "import pathlib, sys; sys.exit(0 if pathlib.Path('hello.txt').exists() else -1)"
-
-    # test Ghidrathon when GHIDRATHON_SAVE_PATH is set
-    - name: Set Ghidrathon Python interpreter (GHIDRATHON_SAVE_PATH is set)
+    - name: Set Ghidrathon Python interpreter 
       env:
-        GHIDRATHON_SAVE_PATH: ${{ matrix.ghidrathon-save-path }}
+        GHIDRATHON_SAVE_PATH: ${{ matrix.use-default-ghidrathon-save-path && '' || matrix.ghidrathon-save-path }}
       run: python util/ghidrathon_configure.py ../tmp/ghidra/ghidra_PUBLIC -d
-    - name: Run tests (GHIDRATHON_SAVE_PATH is set)
+    - name: Run tests
       env:
-        GHIDRATHON_SAVE_PATH: ${{ matrix.ghidrathon-save-path }}
+        GHIDRATHON_SAVE_PATH: ${{ matrix.use-default-ghidrathon-save-path && '' || matrix.ghidrathon-save-path }}
       run: |
-        ../tmp/ghidra/ghidra_PUBLIC/support/analyzeHeadless ${{ github.workspace }}/../tmp/ghidra test -Import ${{ github.workspace }}/../tmp/ghidra/ghidra_PUBLIC/GPL/DemanglerGnu/os/linux_x86_64/demangler_gnu_v2_24 -overwrite  -PostScript ${{ github.workspace }}/data/python/tests/hello.py -PostScript ${{ github.workspace }}/data/python/tests/runall.py > ../tmp/log.txt
-    - name: Check tests (GHIDRATHON_SAVE_PATH is set)
+        $GHIDRA_INSTALL_DIR/support/analyzeHeadless ${{ github.workspace }}/../tmp/ghidra test \
+          -Import $DEMANGLER_PATH \
+          -overwrite \
+          -PostScript ${{ github.workspace }}/data/python/tests/hello.py \
+          -PostScript ${{ github.workspace }}/data/python/tests/runall.py \
+          > ../tmp/log.txt
+    - name: Check tests
       run: |
         python -c "import pathlib, sys;log_text=pathlib.Path('../tmp/log.txt').read_text(encoding='utf-8');print(log_text);sys.exit(0 if 'runall.py called exit with code 0' in log_text else -1)"
         python -c "import pathlib, sys; sys.exit(0 if pathlib.Path('hello.txt').exists() else -1)"
