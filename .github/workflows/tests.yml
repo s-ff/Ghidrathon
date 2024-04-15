@@ -117,14 +117,14 @@ jobs:
 
     - name: Set Ghidrathon Python interpreter
       env:
-        ${{ if eq(martix.use-default-ghidrathon-save-path, 'true') }}:
-          GHIDRATHON_SAVE_PATH: ${{ matrix.ghidrathon-save-path }}
+        if: ${{ martix.use-default-ghidrathon-save-path == 'true' }}
+        GHIDRATHON_SAVE_PATH: ${{ matrix.ghidrathon-save-path }}
       run: python util/ghidrathon_configure.py $GHIDRA_INSTALL_DIR -d
 
     - name: Run tests
       env:
-        ${{ if eq(martix.use-default-ghidrathon-save-path, 'true') }}:
-          GHIDRATHON_SAVE_PATH: ${{ matrix.ghidrathon-save-path }}
+        if: ${{ martix.use-default-ghidrathon-save-path == 'true' }}
+        GHIDRATHON_SAVE_PATH: ${{ matrix.ghidrathon-save-path }}
       run: |
         echo "VALUE of use-default-ghidrathon-save-path: ${{ matrix.use-default-ghidrathon-save-path }}"
         echo "VALUE of GHIDRATHON_SAVE_PATH: $GHIDRATHON_SAVE_PATH"
