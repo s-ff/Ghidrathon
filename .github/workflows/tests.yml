@@ -1,6 +1,14 @@
 name: CI
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - "test_strategy_idea"
+  pull_request:
+    branches:
+      - "test_strategy_idea" 
+    paths:
+      - ".github/workflows/test.yaml"
 
 env:
   GHIDRA_INSTALL_DIR: ${{ github.workspace }}/../tmp/ghidra/ghidra_PUBLIC
