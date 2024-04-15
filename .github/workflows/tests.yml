@@ -55,6 +55,7 @@ jobs:
         jep-jar-release-url: ["https://github.com/ninia/jep/releases/download/v4.2.0/jep-4.2.0.jar"]
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.8", "3.12"]
+        use-default-ghidrathon-save-path: [true, false]
         include:
           - os: ubuntu-latest
             ghidrathon-save-path: "/tmp/"
