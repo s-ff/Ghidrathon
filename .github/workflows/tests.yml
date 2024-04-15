@@ -115,15 +115,17 @@ jobs:
         Rename-Item -Path "./dist/$((Get-ChildItem -Path "./dist").Name)" -NewName "Ghidrathon.zip"
         tar -xf ./dist/Ghidrathon.zip -C ../tmp/ghidra/ghidra_PUBLIC/Ghidra/Extensions/
 
-    - name: Set Ghidrathon Python interpreter 
+    - name: Set Ghidrathon Python interpreter
       env:
-        GHIDRATHON_SAVE_PATH: ${{ matrix.use-default-ghidrathon-save-path && '' || matrix.ghidrathon-save-path }}
-      run: python util/ghidrathon_configure.py ../tmp/ghidra/ghidra_PUBLIC -d
+        GHIDRATHON_SAVE_PATH: ${{ matrix.use-default-ghidrathon-save-path == 'true' && '' || matrix.ghidrathon-save-path }}
+      run: python util/ghidrathon_configure.py $GHIDRA_INSTALL_DIR -d
+
     - name: Run tests
       env:
-        GHIDRATHON_SAVE_PATH: ${{ matrix.use-default-ghidrathon-save-path && '' || matrix.ghidrathon-save-path }}
+        GHIDRATHON_SAVE_PATH: ${{ matrix.use-default-ghidrathon-save-path == 'true' && '' || matrix.ghidrathon-save-path }}
       run: |
-        echo "VALUE of use-default-ghidrathon-save-path: " ${{ matrix.use-default-ghidrathon-save-path }}
+        echo "VALUE of use-default-ghidrathon-save-path: ${{ matrix.use-default-ghidrathon-save-path }}"
+        echo "VALUE of GHIDRATHON_SAVE_PATH: $GHIDRATHON_SAVE_PATH"
         $GHIDRA_INSTALL_DIR/support/analyzeHeadless ${{ github.workspace }}/../tmp/ghidra test \
           -Import $DEMANGLER_PATH \
           -overwrite \
