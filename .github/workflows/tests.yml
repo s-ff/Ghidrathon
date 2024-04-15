@@ -123,6 +123,7 @@ jobs:
       env:
         GHIDRATHON_SAVE_PATH: ${{ matrix.use-default-ghidrathon-save-path && '' || matrix.ghidrathon-save-path }}
       run: |
+        echo "VALUE of use-default-ghidrathon-save-path: " ${{ matrix.use-default-ghidrathon-save-path }}
         $GHIDRA_INSTALL_DIR/support/analyzeHeadless ${{ github.workspace }}/../tmp/ghidra test \
           -Import $DEMANGLER_PATH \
           -overwrite \
